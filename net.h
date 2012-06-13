@@ -3,14 +3,16 @@
 
 typedef double nfloat_t;
 
-typedef nfloat_t(function_t)(nfloat_t x);
+typedef nfloat_t(*act_func_t)(nfloat_t x);
 
 typedef struct _net_desc_t {
   /** Liczba warstw sieci, łącznie z "warstwą" wejściową */
-  int layers_n;
+  int         layers_n;
   /** Liczba neuronów w warstwie, począwszy od warstwy wejściowej, kończąc na
    *  wyjściowej */
-  int *neurons_n;
+  int         *neurons_n;
+  act_func_t  f;
+  act_func_t  df;
 } net_desc_t;
 
 typedef nfloat_t *net_input_t;

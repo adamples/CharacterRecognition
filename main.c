@@ -5,8 +5,27 @@
 #include <time.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 #include <cairo/cairo.h>
 #include "net.h"
+
+
+#define A ((nfloat_t) 1.5)
+#define N ((nfloat_t) 0.01)
+
+
+nfloat_t
+f(nfloat_t x)
+{
+  return 2.0 / (1 + exp(- A * x)) - 1.0;
+}
+
+
+nfloat_t
+df(nfloat_t x)
+{
+  return 2 * A * exp(A * x) / pow(exp(A * x) + 1, 2);
+}
 
 
 int
@@ -60,11 +79,23 @@ train(net_t *net, int n, nfloat_t *set, int rows_n, int image_size, int output_s
   int       i = 0, j = 0, r = 0;
   int       input_size = image_size * image_size;
   nfloat_t  *input, *output;
+  int       *hash;
 
   input = (nfloat_t *) malloc(input_size * sizeof(nfloat_t));
+  hash = (int *) malloc(rows_n * sizeof(int));
 
-  for (i = 0; i < n; ++i) {
+  for (i = 0; i < rows_n; ++i)
+    hash[i] = i;
+
+  for (i = 0; i < rows_n; ++i) {
     r = rand_(0, rows_n - 1);
+    j = hash[i];
+    hash[i] = hash[r];
+    hash[r] = j;
+  }
+
+  for (i = 0; i < rows_n; ++i) {
+    r = hash[i];
     //input = set + r * (input_size + output_size);
     memcpy(input, set + r * (input_size + output_size), input_size * sizeof(nfloat_t));
 
@@ -82,7 +113,7 @@ train(net_t *net, int n, nfloat_t *set, int rows_n, int image_size, int output_s
 
     //~ print_input_data(input, image_size);
     //~ print_output_data(output, output_size);
-    net_learn(net, 0.005, input, output);
+    net_learn(net, N, input, output);
   }
 }
 
@@ -100,14 +131,15 @@ test(net_t *net, int n, nfloat_t *set, int rows_n, int image_size, int output_si
   char      tmp;
 
   output = (nfloat_t *) malloc(output_size * sizeof(nfloat_t));
+  n = rows_n;
 
-  for (i = 0; i < rows_n; ++i) {
-    r = i;//rand_(0, rows_n - 1);
+  for (i = 0; i < n; ++i) {
+    r = i;
     input = set + r * (input_size + output_size);
     correct_output = input + input_size;
+    net_run(net, input, output);
     //~ print_input_data(input, image_size);
     //~ print_output_data(output, output_size);
-    net_run(net, input, output);
 
     tmp = 0;
 
@@ -124,7 +156,7 @@ test(net_t *net, int n, nfloat_t *set, int rows_n, int image_size, int output_si
   result_bits = (double) correct_bits * 100.0 / (output_size * n);
   result_letters = (double) correct_letters * 100.0 / n;
 
-  printf("%6.3f %6.3f\n", result_bits, result_letters);
+  printf("%12.9f %12.9f\n", result_bits, result_letters);
 }
 
 
@@ -132,7 +164,9 @@ int main(int argc, char **argv)
 {
   const net_desc_t network = {
     .layers_n = 4,
-    .neurons_n = (int[]) { 0, 32, 16, 0 }
+    .neurons_n = (int[]) { 0, 32, 16, 0 },
+    .f = f,
+    .df = df
   };
   net_t     *net = NULL;
   FILE      *input = NULL;
@@ -145,7 +179,7 @@ int main(int argc, char **argv)
   nfloat_t  *training_set = NULL;
   int       i;
 
-  srand(10);
+  srand(time(NULL));
 
   if (argc != 2)
     perror("użycie: train <plik wejściowy>"), exit(-1);

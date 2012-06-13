@@ -19,7 +19,7 @@
    *  - lista liter.
    */
 
-/*
+
 void
 generate_input(nfloat_t *input_data, int image_size, const char* family, const char *letter)
 {
@@ -53,9 +53,9 @@ generate_input(nfloat_t *input_data, int image_size, const char* family, const c
 
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
-}*/
+}
 
-
+/*
 void
 generate_input(nfloat_t *input_data, int image_size, const char* family, const char *letter)
 {
@@ -92,19 +92,20 @@ generate_input(nfloat_t *input_data, int image_size, const char* family, const c
   cairo_paint(tcr);
   cairo_surface_write_to_png(tsurface, fname);
 
-  /*cairo_surface_flush(surface);
-  data = (uint32_t *) cairo_image_surface_get_data(surface);
-  stride = cairo_image_surface_get_stride(surface);
-  assert(stride == image_size * 4);
+//  cairo_surface_flush(surface);
+//  data = (uint32_t *) cairo_image_surface_get_data(surface);
+//  stride = cairo_image_surface_get_stride(surface);
+//  assert(stride == image_size * 4);
+//
+//  for (i = 0; i < image_size * image_size; ++i, ++data)
+//    input_data[i] =  - (nfloat_t) *((unsigned char *) data) / 127.5 + 1.0;
 
-  for (i = 0; i < image_size * image_size; ++i, ++data)
-    input_data[i] =  - (nfloat_t) *((unsigned char *) data) / 127.5 + 1.0;
-*/
   cairo_destroy(scr);
   cairo_surface_destroy(ssurface);
   cairo_destroy(tcr);
   cairo_surface_destroy(tsurface);
 }
+*/
 
 void generate_output_coded(nfloat_t *output_data, int output_size, int letter_index)
 {

@@ -15,7 +15,7 @@ TARGETS=test_1 test_2
 
 .PHONY: all clean
 
-all: $(TARGET)
+all: $(TARGETS)
 
 clean:
 	rm -f *.o *.c~ *.h~ $(TARGETS)

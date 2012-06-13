@@ -1,4 +1,5 @@
 #include "net.h"
+#include "net_private.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -6,21 +7,7 @@
 #include <stdarg.h>
 #include <math.h>
 
-#define A ((nfloat_t) 10.0)
-
-
-struct _net_t {
-  int layers_n;
-  int *neurons_n;
-  /** Tablica tablic wag dla poszczególnych warstw (w[warstwa][neuron][wejscie]) */
-  nfloat_t ***w;
-  /** Tablica wyjść dla poszczególnych warstw (y[warstwa][neuron]) */
-  nfloat_t **y;
-  /** Tablica sum dla poszczególnych warstw (phi[warstwa][neuron]) */
-  nfloat_t **phi;
-  /** Tablica błędów dla poszczególnych warstw (delta[warstwa][neuron]) */
-  nfloat_t **delta;
-};
+#define A ((nfloat_t) 100.0)
 
 
 nfloat_t net_f(nfloat_t x)
@@ -46,6 +33,11 @@ net_create(const net_desc_t *net_desc)
   net = (net_t *) malloc(sizeof(net_t));
   net->layers_n = net_desc->layers_n;
   net->neurons_n = net_desc->neurons_n;
+  net->f = net_desc->f;
+  net->df = net_desc->df;
+
+  if (net->f == NULL) net->f = net_f;
+  if (net->df == NULL) net->df = net_df;
 
   /* Alokacja pamięci dla wag, wymaga obliczenia liczby wag */
   int w_n = 0;
@@ -108,13 +100,13 @@ net_create(const net_desc_t *net_desc)
     for (j = 0; j < net->neurons_n[m]; ++j)
       for (i = 0; i <= net->neurons_n[m - 1]; ++i)
         assert(net->w[m][j][i] == m + j * 100 + i * 100000);
-  /* Koniec testu */
+     Koniec testu */
 
 
   for (m = 1; m < net->layers_n; ++m)
     for (j = 0; j < net->neurons_n[m]; ++j)
       for (i = 0; i <= net->neurons_n[m - 1]; ++i)
-        net->w[m][j][i] = (nfloat_t) 2.0 * rand() / RAND_MAX - 1.0;
+        net->w[m][j][i] = 2.0 * (nfloat_t) rand() / RAND_MAX - 1.0;
 
   return net;
 }
@@ -132,7 +124,7 @@ net_compute(net_t *net)
       for (i = 0; i < net->neurons_n[m - 1]; ++i)
         net->phi[m][j] += net->y[m - 1][i] * net->w[m][j][i];
 
-      net->y[m][j] = net_f(net->phi[m][j]);
+      net->y[m][j] = net->f(net->phi[m][j]);
     }
 }
 
@@ -158,7 +150,7 @@ net_learn(net_t *net, nfloat_t n, net_input_t input, net_output_t output)
   m = net->layers_n - 1;
 
   for (j = 0; j < net->neurons_n[m]; ++j)
-    net->delta[m][j] = net_df(net->phi[m][j]) * (output[j] - net->y[m][j]);
+    net->delta[m][j] = net->df(net->phi[m][j]) * (output[j] - net->y[m][j]);
 
   /* Obliczanie błędów dla pozostałych warstw */
   for (m = net->layers_n - 2; m > 0; --m)
@@ -168,7 +160,7 @@ net_learn(net_t *net, nfloat_t n, net_input_t input, net_output_t output)
       for (l = 0; l < net->neurons_n[m + 1]; ++l)
         net->delta[m][j] += net->delta[m + 1][l] * net->w[m + 1][l][j];
 
-      net->delta[m][j] *= net_df(net->phi[m][j]);
+      net->delta[m][j] *= net->df(net->phi[m][j]);
     }
 
   /* Korekta wag */
