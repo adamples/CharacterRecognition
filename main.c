@@ -181,8 +181,8 @@ int main(int argc, char **argv)
 
   srand(time(NULL));
 
-  if (argc != 2)
-    perror("użycie: train <plik wejściowy>"), exit(-1);
+  if (argc != 2 && argc != 3)
+    perror("użycie: train <plik danych uczących> [<plik sieci>]"), exit(-1);
 
   if (!(input = fopen(argv[1], "rb")))
     perror("nie można wczytać pliku do odczytu"), exit(-2);

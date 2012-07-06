@@ -25,10 +25,10 @@ nfloat_t net_df(nfloat_t x)
 
 
 net_t*
-net_create(const net_desc_t *net_desc)
+net_allocate(const net_desc_t *net_desc)
 {
   net_t *net = NULL;
-  int   m = 0, j = 0, i = 0;
+  int   m = 0, j = 0;
 
   net = (net_t *) malloc(sizeof(net_t));
   net->layers_n = net_desc->layers_n;
@@ -101,14 +101,73 @@ net_create(const net_desc_t *net_desc)
       for (i = 0; i <= net->neurons_n[m - 1]; ++i)
         assert(net->w[m][j][i] == m + j * 100 + i * 100000);
      Koniec testu */
+     
+  return net;
+}
 
 
+void
+net_initialize_random(net_t *net)
+{
+  int i = 0, j = 0, m = 0;
+  
   for (m = 1; m < net->layers_n; ++m)
     for (j = 0; j < net->neurons_n[m]; ++j)
       for (i = 0; i <= net->neurons_n[m - 1]; ++i)
         net->w[m][j][i] = 2.0 * (nfloat_t) rand() / RAND_MAX - 1.0;
+}
 
+
+net_t*
+net_create(const net_desc_t *net_desc)
+{
+  net_t   *net = net_allocate(net_desc);
+
+  net_initialize_random(net);
   return net;
+}
+
+
+net_t*  
+net_create_from_file(FILE *file, act_func_t f, act_func_t df)
+{
+  net_desc_t  net_desc = {
+    .layers_n = 0,
+    .neurons_n = NULL,
+    .f = f,
+    .df = df
+  };
+  net_t   *net = NULL;
+  int     m = 0;
+  
+  fread(&net_desc.layers_n, sizeof(int), 1, file);
+  net_desc.neurons_n = (int *) malloc(net_desc.layers_n * sizeof(int));
+  fread(net_desc.neurons_n, sizeof(int), net_desc.layers_n, file);
+  
+  net = net_allocate(&net_desc);
+  
+  int w_n = 0;
+
+  for (m = 1; m < net->layers_n; ++m)
+    w_n += net->neurons_n[m] * (net->neurons_n[m - 1] + 1);
+
+  fread(net->w[1][0], sizeof(nfloat_t), w_n, file);
+  
+  return net;
+}
+
+
+void
+net_write_to_file(net_t *net, FILE* file)
+{
+  int w_n = 0, m = 0;
+
+  for (m = 1; m < net->layers_n; ++m)
+    w_n += net->neurons_n[m] * (net->neurons_n[m - 1] + 1);
+
+  fwrite(&net->layers_n, sizeof(int), 1, file);
+  fwrite(net->neurons_n, sizeof(int), net->layers_n, file);
+  fwrite(net->w[1][0], sizeof(nfloat_t), w_n, file);
 }
 
 

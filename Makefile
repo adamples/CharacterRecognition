@@ -9,7 +9,7 @@ LIBS=cairo glib-2.0
 CFLAGS+=`pkg-config --cflags $(LIBS)`
 LDFLAGS+=`pkg-config --libs $(LIBS)`
 
-TARGETS=main tsg
+TARGETS=train tsg
 
 .PHONY: all clean
 

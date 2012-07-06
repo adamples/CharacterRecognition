@@ -1,6 +1,9 @@
 #ifndef _NET_H_
 #define _NET_H_
 
+#include <stdio.h>
+
+
 typedef double nfloat_t;
 
 typedef nfloat_t(*act_func_t)(nfloat_t x);
@@ -22,6 +25,9 @@ typedef struct _net_t net_t;
 
 
   net_t*  net_create(const net_desc_t *net_desc);
+  net_t*  net_create_from_file(FILE *file, act_func_t f, act_func_t df);
+  void    net_write_to_file(net_t *net, FILE* file);
+
   void    net_run(net_t *net, net_input_t input, net_output_t output);
   void    net_learn(net_t *net, nfloat_t n, net_input_t input, net_output_t output);
   void    net_free(net_t **net);
