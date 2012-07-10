@@ -3,11 +3,10 @@ CFLAGS+=-Wall
 CFLAGS+=-std=gnu99
 
 # Biblioteki
-LIBS=cairo glib-2.0 MagickWand
+LIB_NAMES=glib-2.0 MagickWand
 
-# Biblioteka Cairo
-CFLAGS+=`pkg-config --cflags $(LIBS)`
-LDFLAGS+=`pkg-config --libs $(LIBS)`
+CFLAGS+=`pkg-config --cflags $(LIB_NAMES)`
+LDLIBS+=`pkg-config --libs $(LIB_NAMES)`
 
 TARGETS=train test_net create_net io_data_gen io_data_inspect
 

@@ -5,11 +5,11 @@ CFLAGS+=-std=gnu99
 CFLAGS+=-I..
 
 # Biblioteki
-LIBS=cairo glib-2.0 MagickWand
+LIB_NAMES=glib-2.0 MagickWand
 
-# Biblioteka Cairo
-CFLAGS+=`pkg-config --cflags $(LIBS)`
-LDFLAGS+=`pkg-config --libs $(LIBS)`
+CFLAGS+=`pkg-config --cflags $(LIB_NAMES)`
+LDLIBS+=`pkg-config --libs $(LIB_NAMES)`
+
 
 TARGETS=test_1 test_2 test_normalizer
 
