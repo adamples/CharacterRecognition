@@ -4,8 +4,7 @@
 struct _net_t {
   int layers_n;
   int *neurons_n;
-  act_func_t f;
-  act_func_t df;
+  nfloat_t a;
   /** Tablica tablic wag dla poszczególnych warstw (w[warstwa][neuron][wejscie]) */
   nfloat_t ***w;
   /** Tablica wyjść dla poszczególnych warstw (y[warstwa][neuron]) */

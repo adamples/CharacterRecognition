@@ -21,27 +21,13 @@
 #define A 100.0
 
 
-nfloat_t f(nfloat_t x)
-{
-  return 2.0 / (1 + exp(- A * x)) - 1.0;
-  return tanh(A * x);
-}
-
-
-nfloat_t df(nfloat_t x)
-{
-  return 2 * A * exp(A * x) / pow(exp(A * x) + 1, 2);
-  return 4 * A * pow(cosh(A * x), 2) / pow(cosh(2 * A * x) + 1, 2);
-}
-
 
 int main(int argc, char **argv)
 {
   const net_desc_t network = {
     .layers_n = 3,
     .neurons_n = (int[]) { 2, 2, 2 },
-    .f = f,
-    .df = df
+    .a = A
   };
   net_t     *net = NULL;
   nfloat_t  input[2] = { -0.4, 0.9 };
